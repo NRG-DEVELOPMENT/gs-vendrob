@@ -1,250 +1,135 @@
+-- This version adds explanatory comments to every section/option.
+
 Config = {}
 
 -- Framework Configuration
-Config.Framework = 'qbcore' -- Options: 'qbcore', 'esx'  -- for QBX leave it as qbcore, it will work!!
+-- 'qb'   -> Force QBCore
+-- 'esx'  -> Force ESX
+-- 'auto' -> Try to detect automatically
+Config.Framework = 'auto'
 
 -- Target System Configuration
-Config.Target = 'ox' -- Options: 'qb', 'ox'
-Config.TargetIcon = 'fa-solid fa-sack-dollar' -- Third-eye icon (FontAwesome icon)
+-- 'ox'   -> ox_target
+-- 'qb'   -> qb-target
+-- 'auto' -> Try to detect automatically
+Config.Target = 'auto'
 
--- Item Requirements
-Config.RequiredItem = 'lockpick' -- Item needed to rob the vending machines
-
--- Notification Settings
-Config.NotifyDuration = 7 -- Duration in seconds for notifications
-
--- Progress Bar Configuration
-Config.ProgressBar = {
-    Enabled = false, -- Set to true if you want a progress bar before minigame
-    Type = "ox_progressbar", -- "ox_progressbar", "ox_progresscircle", "qb_progressbar"
-    Options = {
-        ["ox_progressbar"] = {
-            duration = 20000,
-            label = "Robbing vending machine...",
-            useWhileDead = false,
-            canCancel = true,
-            disable = {
-                move = true,
-                car = true,
-                combat = true,
-            },
-        },
-        ["ox_progresscircle"] = {
-            duration = 20000,
-            label = "Robbing vending machine...",
-            useWhileDead = false,
-            canCancel = true,
-            disable = {
-                move = true,
-                car = true,
-                combat = true,
-            },
-        },
-        ["qb_progressbar"] = {
-            name = "rob_vending",
-            duration = 20000,
-            label = "Robbing vending machine...",
-            useWhileDead = false,
-            canCancel = true,
-            controlDisables = {
-                disableMovement = true,
-                disableCarMovement = true,
-                disableMouse = false,
-                disableCombat = true,
-            },
-            animation = {
-                animDict = 'missheistfbi3b_ig7',
-                anim = 'lift_fibagent_loop',
-            }
-        },
-    }
-}
-
--- Minigame Configuration
-Config.Minigame = {
-    -- Choose which minigame to use:
-    -- 'qb-lockpick' - Uses QB-Lockpick (circle minigame)
-    -- 'ox-skillcheck' - Uses OX-Lib skillcheck
-    -- 'ox-circle' - Uses OX-Lib circle minigame
-    -- 'ox-bar' - Uses OX-Lib progress bar minigame
-    -- 'ps-skillbar' - Uses PS-UI skillbar
-    -- 'ps-circle' - Uses PS-UI circle minigame
-    -- 'ps-scrambler' - Uses PS-UI scrambler (hacking) minigame
-    Type = 'ox-skillcheck',
-    
-    Settings = {
-        -- QB Lockpick Settings
-        ['qb-lockpick'] = {
-            Difficulty = 3, -- 1 = Easy, 5 = Hard
-            Pins = 4,
-            Time = 15, -- Seconds
-            NumOfAttempts = 6
-        },
-        -- OX Skillcheck Settings
-        ['ox-skillcheck'] = {
-            Difficulty = 'medium', -- 'easy', 'medium', 'hard'
-            SkillCheckCount = 3,
-            Keys = {'w', 'a', 's', 'd'}
-        },
-        -- OX Circle Settings
-        ['ox-circle'] = {
-            Difficulty = 3, -- 1-10 (10 is hardest)
-            Duration = 2000, -- milliseconds
-        },
-        -- OX Bar Settings
-        ['ox-bar'] = {
-            Duration = 5000, -- milliseconds
-            Position = 'middle', -- 'left', 'middle', 'right'
-            Width = 30, -- width of the success zone (percentage)
-        },
-        -- PS Skillbar Settings
-        ['ps-skillbar'] = {
-            Difficulty = 'medium', -- 'easy', 'medium', 'hard'
-            SkillCheckCount = 3,
-        },
-        -- PS Circle Settings
-        ['ps-circle'] = {
-            Duration = 7, -- seconds
-            Circles = 3,
-            Success = 'medium' -- 'easy', 'medium', 'hard'
-        },
-        -- PS Scrambler Settings
-        ['ps-scrambler'] = {
-            Type = 'alphabet', -- 'alphabet', 'numeric', 'alphanumeric', 'greek', 'braille', 'runes'
-            Duration = 30, -- seconds
-            Length = 5, -- length of the code
-        }
-    }
-}
-
--- Police Configuration
-Config.RequirePolice = false -- Set to false to disable police requirement
-Config.MinPolice = 1 -- Minimum number of police required for robbery
-Config.AlertPolice = true -- Enable Police Alerts
-Config.AlertPoliceOnCancel = true -- Enable Police Alerts even if robbery was cancelled
-Config.PoliceAlertChance = 60 -- Percentage chance of alerting police (0-100)
-
--- Dispatch Configuration
+-- Dispatch System Configuration
 Config.Dispatch = {
-    Enabled = false,
-    System = 'ps', -- Options: 'ps', 'cd', 'custom'
-    BlipDuration = 60, -- Seconds for the blip to remain on the map
-    BlipSprite = 628,
-    BlipColor = 1,
-    BlipScale = 1.0,
+    enabled = true,         -- Enable/disable dispatch alerts entirely
+    system = 'ps',          -- 'ps' (ps-dispatch), 'cd' (cd_dispatch), or 'custom' (your own integration)
+    cooldown = 60000,       -- Minimum time (in ms) between dispatch calls for this script (e.g., 60000 = 1 minute)
 }
 
 -- Cooldown Configuration
 Config.Cooldown = {
-    -- Machine-specific cooldown
-    MachineCooldown = 30.0, -- Minutes
-    
-    -- Player Cooldown
-    EnablePlayerCooldown = false,
-    PlayerCooldown = 10.0, -- Minutes
-    
-    -- Global Cooldown
-    EnableGlobalCooldown = false,
-    GlobalCooldown = 5.0, -- Minutes
+    enabled = true,         -- Enable/disable cooldown system
+    time = 300,             -- Cooldown time in seconds (e.g., 300 = 5 minutes)
+    global = false,         -- If true, all meters share the same cooldown; if false, each meter has its own cooldown
+    persistRestart = false, -- If true, cooldowns persist across server restarts (requires database integration)
 }
 
--- Reward Configuration
+-- Item Requirements (what players must have to attempt a robbery)
+Config.RequiredItems = {
+    enabled = true,         -- If false, no items are required
+    items = {
+        -- name:   item name in your inventory system
+        -- label:  display label used by notifications/feedback
+        -- amount: how many of this item are required to start
+        -- remove: whether to remove the item on use
+        -- chance: % chance to remove the item when used (0–100)
+        { name = 'lockpick', label = 'Lockpick', amount = 1, remove = true, chance = 65 }
+    }
+}
+
+-- Reward Configuration (what players can receive on success)
 Config.Rewards = {
-    Enabled = true, -- Allow rewards on robbery success
-    
-    -- Mad-Loot Integration
-    UseMadLoot = false,
-    MadLootTableName = "vending_machine_loot",
-    MadLootTableTiers = "all",
-    MadLootTableUseGuaranteed = true,
-    
-    -- Cash Rewards
-    Money = {
-        Enabled = true,
-        Chance = 100, -- Percentage chance to get money
-        Min = 5,
-        Max = 50,
-        Type = 'cash' -- 'cash' or 'bank'
+    money = {
+        enabled = true,     -- Toggle money rewards
+        type = 'cash',      -- 'cash', 'bank', 'black_money', 'crypto' (uses your framework/wallet integrations)
+        minAmount = 50,     -- Minimum payout
+        maxAmount = 200,    -- Maximum payout
     },
-    
-    -- Common Item Rewards
-    CommonItems = {
-        Enabled = true,
-        Chance = 50, -- Percentage chance to get common items
-        Items = {
-            {name = 'water', min = 1, max = 3, chance = 70},
-            {name = 'sandwich', min = 1, max = 2, chance = 60},
-            {name = 'cola', min = 1, max = 3, chance = 70},
-            {name = 'chocolate', min = 1, max = 2, chance = 50},
-            {name = 'chips', min = 1, max = 2, chance = 60},
-            {name = 'bandage', min = 1, max = 5, chance = 40},
-            {name = 'parachute', min = 1, max = 2, chance = 20},
-        }
-    },
-    
-    -- Rare Item Rewards
-    RareItems = {
-        Enabled = true,
-        Chance = 25, -- Percentage chance to get rare items
-        Items = {
-            {name = 'lockpick', min = 1, max = 3, chance = 60},
-            {name = 'phone', min = 1, max = 1, chance = 20},
-            {name = 'radio', min = 1, max = 1, chance = 10},
+    items = {
+        enabled = true,     -- Toggle item rewards
+        possible = {
+            -- Each entry has:
+            -- name: item name
+            -- label: display label
+            -- min/max: quantity range
+            -- chance: % chance this item will be awarded (rolls independently)
+            { name = 'metalscrap',   label = 'Metal Scrap',    min = 1, max = 3, chance = 70 },
+            { name = 'copper',       label = 'Copper',         min = 1, max = 2, chance = 50 },
+            { name = 'aluminum',     label = 'Aluminum',       min = 1, max = 2, chance = 40 },
+            { name = 'iron',         label = 'Iron',           min = 1, max = 2, chance = 30 },
+            { name = 'steel',        label = 'Steel',          min = 1, max = 1, chance = 20 },
+            { name = 'rubber',       label = 'Rubber',         min = 1, max = 3, chance = 60 },
+            { name = 'electronic_kit', label = 'Electronic Kit', min = 1, max = 1, chance = 10 },
         }
     }
 }
 
--- Random Events Configuration
-Config.RandomEvents = {
-    OnSuccess = true, -- Allow random events on robbery success
-    OnFail = true, -- Allow random events on robbery fail
-    Chance = 30, -- Percentage chance for a random event to occur (0-100)
-    
-    -- Event Types
-    Events = {
-        Taze = {
-            Enabled = true,
-            Chance = 7.5, -- Percentage chance
-            Duration = 5000, -- Duration in ms
-        },
-        BreakMachine = {
-            Enabled = true,
-            Chance = 15.0, -- Percentage chance
-        },
-        BlowUp = {
-            Enabled = true,
-            Chance = 5.0, -- Percentage chance
-            DamageRadius = -1.0, -- Negative for no damage, positive for damage
-        },
-        -- TrapArm event removed as requested
-        SecurityCamera = {
-            Enabled = true,
-            Chance = 15.0, -- Percentage chance
-        },
-        BonusReward = {
-            Enabled = true,
-            Chance = 10.0, -- Percentage chance
-        },
-        Nothing = {
-            Enabled = true,
-            Chance = 10.0, -- Percentage chance
-        }
+-- Minigame Configuration
+-- 'type' and 'difficulty' define the primary challenge; the nested tables define difficulty presets per game type.
+Config.Minigame = {
+    type = 'circle',         -- 'circle', 'maze', 'lockpick'
+    difficulty = 'medium',   -- 'easy', 'medium', 'hard'
+
+    -- Circle minigame: number of circles per difficulty
+    circle = {
+        easy   = { circles = 3 },   -- Easier timing windows, fewer circles
+        medium = { circles = 4 },
+        hard   = { circles = 5 },   -- Harder timing windows, more circles
+    },
+
+    -- Maze minigame: maze size per difficulty
+    maze = {
+        easy   = { size = 'small' },   -- Small grid
+        medium = { size = 'medium' },  -- Medium grid
+        hard   = { size = 'large' },   -- Large grid
+    },
+
+    -- Lockpick minigame: number of pins per difficulty
+    lockpick = {
+        easy   = { pins = 4 },     -- Fewer pins, easier
+        medium = { pins = 5 },
+        hard   = { pins = 6 },     -- More pins, harder
     }
 }
 
--- Vending Machine Models
-Config.VendingMachines = {
-    -- Snack and Drink machines
-    `prop_vend_snak_01`,
-    `prop_vend_snak_01_tu`,
-    `prop_vend_soda_01`,
-    `prop_vend_soda_02`,
-    `sf_prop_sf_vend_drink_01a`,
-    `prop_vend_coffe_01`,
-    `prop_vend_water_01`,
-    `prop_vend_fags_01`,
-    -- Add any other vending machine models you want to include
+-- Meter Configuration (targets and interaction behavior)
+Config.Meters = {
+    -- Default parking meter model (used if a specific model isn't found)
+    model = 'prop_parknmeter_01',
+
+    -- All valid parking meter models that can be targeted
+    models = {
+        'prop_parknmeter_01',
+        'prop_parknmeter_02'
+    },
+
+    -- Police presence rules
+    police = {
+        required = false,         -- If true, require a minimum number of police online to allow robberies
+        minimum = 2,              -- Minimum police count (used only if required = true)
+        jobs = { 'police', 'sheriff' }, -- Job names that count as police (framework-specific)
+    },
+
+    -- Base success chance for the robbery (before modifiers)
+    successChance = 70,           -- Percentage (0–100)
+
+    -- Interaction distance with the meter
+    interactionDistance = 1.5,    -- In meters
+
+    -- Animation played while attempting the robbery
+    animation = {
+        dict = 'mini@repair',     -- Animation dictionary
+        anim = 'fixing_a_ped',    -- Animation name
+        flag = 16,                -- Task flag (e.g., loop, upper body only, etc.)
+        duration = 10000,         -- Duration in ms (e.g., 10000 = 10 seconds)
+    }
 }
 
 -- Debug Mode
+-- When true, prints extra logs and may show test notifications to help diagnose issues.
 Config.Debug = false

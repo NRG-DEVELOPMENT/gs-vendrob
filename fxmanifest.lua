@@ -1,22 +1,28 @@
 fx_version 'cerulean'
 game 'gta5'
 
-name 'gs-vendrob'
+name 'gs-meterrobbery'
 author 'NRG Development'
-description 'Advanced Vending Machine Robbery Script with QBCore, QBX, and ESX compatibility'
+description 'Parking Meter Robbery Script for FiveM - Compatible with QBCore and ESX'
 version '1.0.0'
 
 shared_scripts {
+    '@ox_lib/init.lua',
     'config/config.lua',
-    'locales/*.lua'
+    'config/locales.lua'
 }
 
 client_scripts {
-    'client/*.lua'
+    'client/main.lua',
+    'client/target.lua'
 }
 
 server_scripts {
-    'server/*.lua'
+    'server/main.lua'
+}
+
+dependencies {
+    'ox_lib'
 }
 
 lua54 'yes'
